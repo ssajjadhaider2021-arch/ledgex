@@ -1,13 +1,18 @@
 import React from "react";
-import { Button, Card, Table } from "antd";
+import { Link } from "react-router-dom";
+import { Card, Table } from "antd";
 import { CheckCircleOutlined } from "@ant-design/icons";
 import MarketingShell from "./_MarketingShell";
+import { PRIMARY_BTN } from "../../constants/marketingUi";
+
+/** Pound sign as escape so source stays ASCII-only (avoids U+FFFD on some Windows/OneDrive saves). */
+const P = "\u00a3";
 
 const MAIN_PLANS = [
   {
     title: "Sole Traders",
     subtitle: "Self-Assessment",
-    price: "£29.99/month",
+    price: `${P}29.99/month`,
     cta: "GET STARTED",
     featured: false,
     items: [
@@ -22,7 +27,7 @@ const MAIN_PLANS = [
   {
     title: "Small Limited Company",
     subtitle: "(non-VAT)",
-    price: "£49.99/month",
+    price: `${P}49.99/month`,
     cta: "GET STARTED",
     featured: false,
     items: [
@@ -37,7 +42,7 @@ const MAIN_PLANS = [
   {
     title: "VAT-Registered (Most Popular)",
     subtitle: "Limited Company",
-    price: "£99.99/month",
+    price: `${P}99.99/month`,
     cta: "JOIN LEDGEX",
     featured: true,
     items: [
@@ -52,7 +57,7 @@ const MAIN_PLANS = [
   {
     title: "LedgeX+",
     subtitle: "E-Commerce",
-    price: "£129.99/month",
+    price: `${P}129.99/month`,
     cta: "GET STARTED",
     featured: false,
     items: [
@@ -66,36 +71,36 @@ const MAIN_PLANS = [
 ];
 
 const SPECIALIST = [
-  ["Multi-Property Landlords", "£49.99/month"],
-  ["Partnerships", "£44.99/month"],
-  ["CIC / Non-Profit", "£54.99/month"],
-  ["Dormant Companies", "£14.99/month"],
-  ["Overseas-Owned UK Companies", "£89.99/month"],
+  ["Multi-Property Landlords", `${P}49.99/month`],
+  ["Partnerships", `${P}44.99/month`],
+  ["CIC / Non-Profit", `${P}54.99/month`],
+  ["Dormant Companies", `${P}14.99/month`],
+  ["Overseas-Owned UK Companies", `${P}89.99/month`],
 ];
 
 const ADDONS = [
-  ["Virtual Address", "£15/month", "UK Registered Office + Director Address"],
-  ["Business Website + Hosting", "£20/month", "Professional website, email & hosting"],
-  ["Document Vault", "£4.99/month", "Secure lifetime storage"],
-  ["Business health check", "£3.50/month", "Business & personal credit alerts"],
-  ["Priority Support", "£7.99/month", "Same-day responses"],
+  ["Virtual Address", `${P}15/month`, "UK Registered Office + Director Address"],
+  ["Business Website + Hosting", `${P}20/month`, "Professional website, email & hosting"],
+  ["Document Vault", `${P}4.99/month`, "Secure lifetime storage"],
+  ["Business health check", `${P}3.50/month`, "Business & personal credit alerts"],
+  ["Priority Support", `${P}7.99/month`, "Same-day responses"],
 ];
 
 const ONE_OFF = [
-  ["Company Formation", "£40–60", "Fast online setup"],
-  ["Confirmation Statement", "£34.99", "Filed annually"],
-  ["VAT Registration", "£29.99", "48-hour turnaround"],
-  ["PAYE Registration", "£19.99", "Complete setup"],
-  ["UTR Registration", "£14.99", "HMRC SA1 submission"],
-  ["Director Appointment/Resignation", "£14.99", "Companies House filing"],
-  ["Registered Office Change", "£14.99", "Instant update"],
+  ["Company Formation", `${P}40\u2013${P}60`, "Fast online setup"],
+  ["Confirmation Statement", `${P}34.99`, "Filed annually"],
+  ["VAT Registration", `${P}29.99`, "48-hour turnaround"],
+  ["PAYE Registration", `${P}19.99`, "Complete setup"],
+  ["UTR Registration", `${P}14.99`, "HMRC SA1 submission"],
+  ["Director Appointment/Resignation", `${P}14.99`, "Companies House filing"],
+  ["Registered Office Change", `${P}14.99`, "Instant update"],
 ];
 
 const WHY = [
   ["Automated accounting", "No paperwork. No chasing. Everything happens automatically."],
   ["Low monthly prices", "No big year-end bills. Predictable monthly costs."],
   ["Smart compliance dashboard", "Real-time tax, VAT, deadlines & alerts in one place."],
-  ["Execution-only protection", "We file exactly what you provide — you stay in control."],
+  ["Execution-only protection", `We file exactly what you provide \u2014 you stay in control.`],
   ["Built for small businesses", "Simple, fast, predictable. No complexity."],
   ["Expert support", "Real humans ready to help when you need it."],
 ];
@@ -104,34 +109,49 @@ export default function PricingPage() {
   return (
     <MarketingShell
       title="Pricing"
-      subtitle="Simple monthly pricing. No surprises. No hidden fees. Everything your business needs — accounting, tax, compliance, and smart automation, all in one place."
+      subtitle={`Simple monthly pricing. No surprises. No hidden fees. Everything your business needs \u2014 accounting, tax, compliance, and smart automation, all in one place.`}
     >
       <section>
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">Choose Your Plan</h2>
-        <div className="mt-7 grid gap-4 lg:grid-cols-2">
+        <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Choose your plan</h2>
+        <p className="mt-2 text-sm text-slate-600">All plans include a secure workspace. Upgrade or change anytime.</p>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {MAIN_PLANS.map((plan) => (
-            <Card
+            <div
               key={plan.title}
-              className={`rounded-2xl border bg-white p-6 shadow-sm ${
-                plan.featured ? "border-blue-300 ring-2 ring-blue-200" : "border-slate-200"
+              className={`relative flex h-full flex-col rounded-2xl p-6 transition duration-200 ${
+                plan.featured
+                  ? "z-[1] border-2 border-blue-500 bg-slate-900 text-white shadow-lg shadow-slate-900/25 ring-1 ring-blue-500/20"
+                  : "border border-slate-800/90 bg-slate-900 text-white shadow-md shadow-slate-900/20"
               }`}
             >
-              <p className="text-lg font-bold text-slate-900">{plan.title}</p>
-              <p className="mt-1 text-sm text-slate-500">{plan.subtitle}</p>
-              <p className="mt-4 text-3xl font-extrabold text-slate-900">{plan.price}</p>
-              <p className="mt-4 text-sm font-semibold text-slate-700">What&apos;s included:</p>
-              <ul className="mt-3 space-y-2 text-sm text-slate-600">
+              {plan.featured ? (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-blue-500 px-3 py-0.5 text-xs font-semibold text-white shadow-sm">
+                  Most popular
+                </span>
+              ) : null}
+              <h3 className="text-sm font-medium text-slate-300">{plan.title}</h3>
+              <p className="mt-1 text-xs text-slate-500">{plan.subtitle}</p>
+              <p className="mt-4 text-2xl font-bold tracking-tight text-white">{plan.price}</p>
+              <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-400">What&apos;s included</p>
+              <ul className="mt-3 flex-1 space-y-2 text-sm text-slate-300">
                 {plan.items.map((item) => (
-                  <li key={item}>
-                    <CheckCircleOutlined className="mr-2 text-emerald-600" />
-                    {item}
+                  <li key={item} className="flex gap-2">
+                    <CheckCircleOutlined className="mt-0.5 shrink-0 text-emerald-400/90" />
+                    <span>{item}</span>
                   </li>
                 ))}
               </ul>
-              <Button type="primary" className="mt-6">
+              <Link
+                to="/register"
+                className={
+                  plan.featured
+                    ? `mt-6 inline-flex h-10 w-full items-center justify-center rounded-lg text-sm font-semibold text-white ${PRIMARY_BTN}`
+                    : "mt-6 inline-flex h-10 w-full items-center justify-center rounded-lg border border-slate-600 bg-slate-800/80 text-sm font-medium text-slate-100 transition hover:border-slate-500 hover:bg-slate-800"
+                }
+              >
                 {plan.cta}
-              </Button>
-            </Card>
+              </Link>
+            </div>
           ))}
         </div>
       </section>

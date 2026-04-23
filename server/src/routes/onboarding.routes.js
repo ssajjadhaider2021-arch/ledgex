@@ -1,15 +1,16 @@
 const express = require("express");
 const router = express.Router();
-const { authMiddleware } = require("../middleware/auth.middleware");
+const { authenticate, isClient } = require("../middleware/auth.middleware");
 const { uploadOnboardingStep2 } = require("../middleware/uploadOnboardingStep2");
 const onboarding = require("../controllers/onboarding.controller");
 
-router.post("/step1", authMiddleware, onboarding.step1Agreement);
-router.post("/agreement-step", authMiddleware, onboarding.submitAgreementStep);
+router.post("/step1", authenticate, isClient, onboarding.step1Agreement);
+router.post("/agreement-step", authenticate, isClient, onboarding.submitAgreementStep);
 
 router.post(
   "/step2",
-  authMiddleware,
+  authenticate,
+  isClient,
   (req, res, next) => {
     uploadOnboardingStep2(req, res, (err) => {
       if (err) {
@@ -24,8 +25,8 @@ router.post(
   onboarding.step2AML
 );
 
-router.post("/risk-assessment", authMiddleware, onboarding.submitRiskAssessment);
-router.post("/step3", authMiddleware, onboarding.step3Questionnaire);
-router.post("/complete", authMiddleware, onboarding.completeOnboarding);
+router.post("/risk-assessment", authenticate, isClient, onboarding.submitRiskAssessment);
+router.post("/step3", authenticate, isClient, onboarding.step3Questionnaire);
+router.post("/complete", authenticate, isClient, onboarding.completeOnboarding);
 
 module.exports = router;

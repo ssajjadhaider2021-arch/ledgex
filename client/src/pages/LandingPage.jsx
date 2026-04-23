@@ -1,193 +1,389 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Button, Card, Table } from "antd";
 import {
+  ArrowRightOutlined,
+  BarChartOutlined,
   BgColorsOutlined,
-  BuildOutlined,
   CheckCircleOutlined,
   FileTextOutlined,
-  LineChartOutlined,
   LockOutlined,
+  ShopOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
+import MarketingHeader from "../components/MarketingHeader";
+import { PRIMARY_BTN, SECONDARY_BTN } from "../constants/marketingUi";
 
-const FEATURE_BLOCKS = [
+const SECTION_EYEBROW = "text-xs font-semibold uppercase tracking-[0.12em] text-blue-600";
+
+/** Pound via Unicode escape (ASCII-safe source; avoids mojibake on some Windows saves). */
+const P = "\u00a3";
+
+const FEATURES = [
   {
-    title: "White-Label Ready",
-    description:
-      "Use LedgeX under your own brand. Custom domains, logos, colour palettes and firm-specific onboarding flows.",
+    title: "White-label portal",
+    body: "Deliver LedgeX under your brand — firm onboarding, client experience, and a workspace that feels like yours.",
     icon: BgColorsOutlined,
   },
   {
-    title: "Full HMRC-Ready Filings",
-    description:
-      "Complete tax compliance built in. CT600, Self Assessment, VAT returns, year-end accounts — all HMRC-ready and automated.",
+    title: "HMRC-aligned workflows",
+    body: "UK-oriented flows from filings to year-end — clear audit trails and the right people in the loop.",
     icon: FileTextOutlined,
   },
   {
-    title: "Business Health Check",
-    description:
-      "Real-time business credit reporting and monitoring. Get instant alerts on credit changes and risk signals to protect your business.",
-    icon: LineChartOutlined,
+    title: "Operating clarity",
+    body: "Signals and activity built for busy finance teams — scannable, actionable, and light on noise.",
+    icon: BarChartOutlined,
   },
   {
-    title: "Secure Document Vault",
-    description:
-      "Permanent encrypted storage for all your records. Keep certificates, accounts, tax returns and ID documents safe in one secure location.",
+    title: "Smart document vault",
+    body: "Encrypted, organised record-keeping so clients and practices can find what they need, when they need it.",
     icon: LockOutlined,
   },
 ];
 
-const NAV_ITEMS = [
-  { label: "How it Works", to: "/how-it-works" },
-  { label: "Pricing", to: "/pricing" },
-  { label: "Partner", to: "/partner" },
-  { label: "Tool", to: "/tool" },
-  { label: "Guides", to: "/guides" },
-];
-
-const AUDIENCE = [
+/** Ecosystem: clients, practices, and partners — internal ops tools stay out of marketing focus. */
+const WHOS_FOR = [
   {
-    title: "Business Owners & SMEs",
-    description:
-      "Automate your accounting, stay compliant, and focus on growing your business.",
+    title: "Business owners & SMEs",
+    body: "Stay on top of cash flow, compliance touchpoints, and your relationship with your accountant — without the clutter.",
+    icon: ShopOutlined,
+    accent: "from-sky-50 to-indigo-50 text-sky-700 ring-sky-200/80",
   },
   {
-    title: "Accountants & Bookkeepers",
-    description:
-      "Manage multiple clients efficiently with powerful multi-tenant tools.",
+    title: "Accountants & bookkeepers",
+    body: "One place to onboard clients, request documents, and run repeatable workflows as your book grows.",
+    icon: TeamOutlined,
+    accent: "from-violet-50 to-blue-50 text-violet-700 ring-violet-200/80",
   },
   {
-    title: "Partners / White-Label Firms",
-    description:
-      "Deliver accounting services under your own brand with full customization.",
+    title: "Partners & white-label firms",
+    body: "Scale a consistent experience across clients, protect your brand, and roll out with confidence at volume.",
+    icon: BgColorsOutlined,
+    accent: "from-amber-50 to-orange-50 text-amber-800 ring-amber-200/80",
   },
 ];
 
-const HOME_PRICING_ROWS = [
-  { key: "sole", plan: "Sole Traders", price: "£29.99/month", bestFor: "Self-Assessment" },
-  { key: "small-ltd", plan: "Small Limited Company", price: "£49.99/month", bestFor: "Non-VAT businesses" },
-  { key: "vat", plan: "VAT-Registered Limited Company", price: "£99.99/month", bestFor: "Most popular" },
-  { key: "ledgex-plus", plan: "LedgeX+", price: "£129.99/month", bestFor: "E-Commerce" },
+const TRUST = [
+  { label: "HMRC-aligned", icon: CheckCircleOutlined },
+  { label: "GDPR & AML aware", icon: CheckCircleOutlined },
+  { label: "UK-oriented posture", icon: CheckCircleOutlined },
+  { label: "Encrypted at rest", icon: LockOutlined },
 ];
+
+const PRICING_PLANS = [
+  {
+    key: "sole",
+    name: "Sole traders",
+    price: `${P}29.99`,
+    period: "/ month",
+    planFor: "Plan for self-employed & micro businesses",
+    cta: "Get started",
+    featured: false,
+  },
+  {
+    key: "small",
+    name: "Small limited company",
+    price: `${P}49.99`,
+    period: "/ month",
+    planFor: "Plan for non-VAT limited companies",
+    cta: "Get started",
+    featured: false,
+  },
+  {
+    key: "vat",
+    name: "VAT registered",
+    price: `${P}99.99`,
+    period: "/ month",
+    planFor: "Plan for growing teams with VAT obligations",
+    cta: "Get started",
+    featured: true,
+  },
+  {
+    key: "plus",
+    name: "LedgeX+",
+    price: `${P}129.99`,
+    period: "/ month",
+    planFor: "Plan for e-commerce & complex operations",
+    cta: "Get started",
+    featured: false,
+  },
+];
+
+function DashboardPreview() {
+  return (
+    <div
+      className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-900/5 ring-1 ring-slate-900/[0.04]"
+      aria-hidden
+    >
+      <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+        <div className="flex items-center gap-2">
+          <div className="h-2.5 w-2.5 rounded-full bg-rose-400/80" />
+          <div className="h-2.5 w-2.5 rounded-full bg-amber-300/80" />
+          <div className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
+        </div>
+        <div className="h-2 w-32 rounded-full bg-slate-100" />
+        <div className="h-7 w-7 rounded-lg bg-slate-50 ring-1 ring-slate-200/80" />
+      </div>
+      <div className="grid gap-3 p-4 sm:grid-cols-3">
+        <div className="space-y-3 rounded-xl bg-slate-50/80 p-4 ring-1 ring-slate-200/60">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Overview</p>
+          <div className="h-2 w-24 rounded-full bg-slate-200/90" />
+          <div className="h-16 rounded-lg bg-white ring-1 ring-slate-200/70" />
+          <div className="h-2 w-full rounded-full bg-slate-200/70" />
+          <div className="h-2 w-2/3 rounded-full bg-slate-200/50" />
+        </div>
+        <div className="space-y-3 rounded-xl bg-slate-50/80 p-4 ring-1 ring-slate-200/60 sm:col-span-2">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Activity</p>
+          <div className="space-y-2">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between gap-3 rounded-lg bg-white p-3 ring-1 ring-slate-200/60 transition duration-200 hover:ring-slate-300/80"
+              >
+                <div className="h-2 w-40 rounded-full bg-slate-200/80" />
+                <div className="h-2 w-16 rounded-full bg-slate-100" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100 text-slate-900">
-      <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <Link to="/" className="text-lg font-bold tracking-tight text-slate-900">
-            LedgeX
-          </Link>
-          <nav className="hidden items-center gap-5 text-sm md:flex">
-            {NAV_ITEMS.map((item) => (
-              <Link key={item.to} to={item.to} className="font-medium text-slate-600 hover:text-slate-900">
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link to="/register">
-              <Button>Register</Button>
-            </Link>
-            <Link to="/login">
-              <Button type="primary">Sign In</Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-slate-50 text-slate-900 antialiased">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-slate-900 focus:shadow-md focus:ring-2 focus:ring-blue-600/30"
+      >
+        Skip to content
+      </a>
 
-      <main>
-        <section className="mx-auto w-full max-w-6xl px-4 pb-10 pt-16 sm:px-6 lg:px-8 lg:pt-20">
-          <h1 className="max-w-4xl text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
-            Automated Accounting & Tax
-            <br />
-            for UK Businesses and Accountants
-          </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-relaxed text-slate-600 sm:text-xl">
-            From accounting and tax to company formation, credit scoring and lifetime document storage — LedgeX brings
-            everything into one secure, automated platform.
-          </p>
-        </section>
+      <MarketingHeader />
 
-        <section className="mx-auto grid w-full max-w-6xl gap-4 px-4 sm:grid-cols-2 sm:px-6 lg:px-8">
-          {FEATURE_BLOCKS.map((item) => (
-            <Card key={item.title} className="rounded-2xl border border-slate-200 shadow-sm">
-              <h2 className="text-xl font-bold text-slate-900">
-                <item.icon className="mr-2 text-blue-600" />
-                {item.title}
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">{item.description}</p>
-            </Card>
-          ))}
-        </section>
-
-        <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Pricing</h2>
-          <p className="mt-3 text-sm text-slate-600 sm:text-base">
-            Simple monthly pricing. No surprises. No hidden fees.
-          </p>
-          <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <Table
-              pagination={false}
-              dataSource={HOME_PRICING_ROWS}
-              columns={[
-                { title: "Plan", dataIndex: "plan", key: "plan" },
-                { title: "Price", dataIndex: "price", key: "price" },
-                { title: "Best For", dataIndex: "bestFor", key: "bestFor" },
-              ]}
-            />
-          </div>
-          <div className="mt-5">
-            <Link to="/pricing">
-              <Button type="primary">View full pricing</Button>
-            </Link>
+      <main id="main-content">
+        <section className="border-b border-slate-200/50 bg-white">
+          <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12 lg:px-8 lg:py-20">
+            <div className="landing-animate-hero max-w-xl">
+              <p className="text-sm font-medium text-slate-500">UK accounting & tax platform</p>
+              <h1 className="mt-4 text-4xl font-bold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl">
+                A calmer way to run finance operations
+              </h1>
+              <p className="mt-6 text-lg leading-relaxed text-slate-600">
+                LedgeX connects business owners and accounting practices in one high-trust workspace — structured
+                workflows, clear permissions, and documentation built for real-world compliance.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Link
+                  to="/register"
+                  className={`inline-flex h-11 items-center justify-center rounded-lg px-5 text-sm font-semibold transition duration-200 ${PRIMARY_BTN}`}
+                >
+                  Get started
+                  <ArrowRightOutlined className="ml-2 text-xs opacity-90" />
+                </Link>
+                <Link
+                  to="/how-it-works"
+                  className={`inline-flex h-11 items-center justify-center rounded-lg px-5 text-sm font-medium transition duration-200 ${SECONDARY_BTN}`}
+                >
+                  How it works
+                </Link>
+              </div>
+              <p className="mt-6 text-sm text-slate-500">No long-term contract required. Cancel anytime.</p>
+            </div>
+            <div className="landing-animate-delayed mt-12 lg:mt-0">
+              <DashboardPreview />
+            </div>
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Who&apos;s it for?</h2>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {AUDIENCE.map((item) => (
-              <article key={item.title} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-slate-900">* {item.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">{item.description}</p>
-              </article>
+        <section className="border-b border-slate-200/50 bg-slate-50">
+          <div className="mx-auto grid w-full max-w-6xl gap-3 px-4 py-10 sm:grid-cols-3 sm:px-6 lg:px-8">
+            {[
+              { k: "Who we serve", v: "SMEs, practices & partner firms" },
+              { k: "Focus", v: "Compliance-minded workflows" },
+              { k: "Experience", v: "Clear dashboards & secure docs" },
+            ].map((row) => (
+              <div
+                key={row.k}
+                className="rounded-xl border border-slate-200/60 bg-white/80 px-5 py-4 shadow-sm shadow-slate-900/[0.03] ring-1 ring-slate-900/[0.02]"
+              >
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{row.k}</p>
+                <p className="mt-2 text-sm font-medium text-slate-800">{row.v}</p>
+              </div>
             ))}
           </div>
         </section>
 
-        <section className="border-y border-slate-200 bg-white/90">
-          <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-              Built by UK accountants & engineers
-            </h2>
-            <div className="mt-6 grid gap-3 text-sm font-medium text-slate-700 sm:grid-cols-2 lg:grid-cols-4">
-              <p>
-                <CheckCircleOutlined className="mr-2 text-emerald-600" />
-                HMRC-aligned
-              </p>
-              <p>
-                <BuildOutlined className="mr-2 text-blue-600" />
-                UK-hosted infrastructure
-              </p>
-              <p>
-                <CheckCircleOutlined className="mr-2 text-emerald-600" />
-                GDPR & AML compliant
-              </p>
-              <p>
-                <LockOutlined className="mr-2 text-blue-600" />
-                Secure, encrypted storage
+        <section className="border-b border-slate-200/50 bg-white">
+          <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className={SECTION_EYEBROW}>Platform features</p>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Everything your business needs</h2>
+              <p className="mt-4 text-base leading-relaxed text-slate-600">
+                A quiet, deliberate interface so finance work stays legible at a glance — no template clutter, no
+                dashboard theatre.
               </p>
             </div>
-            <p className="mt-8 text-sm leading-relaxed text-slate-600">
-              Cancel anytime • No setup fees • No long-term contracts
+            <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {FEATURES.map((f) => (
+                <article
+                  key={f.title}
+                  className="group flex h-full flex-col rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-slate-900/[0.04] transition duration-200 hover:-translate-y-0.5 hover:border-slate-300/90 hover:shadow-md hover:shadow-slate-900/[0.07]"
+                >
+                  <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm transition group-hover:bg-blue-700">
+                    <f.icon className="text-base" aria-hidden />
+                  </div>
+                  <h3 className="mt-5 text-base font-semibold text-slate-900">{f.title}</h3>
+                  <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600">{f.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-slate-200/50 bg-slate-50">
+          <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className={SECTION_EYEBROW}>Pricing</p>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Simple, transparent pricing</h2>
+              <p className="mt-4 text-base text-slate-600">Monthly plans with no surprises. Full breakdown on the pricing page.</p>
+            </div>
+            <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {PRICING_PLANS.map((p) => (
+                <div
+                  key={p.key}
+                  className={`relative flex h-full flex-col rounded-2xl p-6 transition duration-200 ${
+                    p.featured
+                      ? "z-[1] border-2 border-blue-500 bg-slate-900 text-white shadow-lg shadow-slate-900/25 ring-1 ring-blue-500/20"
+                      : "border border-slate-800/90 bg-slate-900 text-white shadow-md shadow-slate-900/20"
+                  }`}
+                >
+                  {p.featured ? (
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-blue-500 px-3 py-0.5 text-xs font-semibold text-white shadow-sm">
+                      Most popular
+                    </span>
+                  ) : null}
+                  <h3 className="text-sm font-medium text-slate-300">{p.name}</h3>
+                  <p className="mt-4 flex items-baseline gap-0.5">
+                    <span className="text-3xl font-bold tracking-tight text-white">{p.price}</span>
+                    <span className="text-sm text-slate-400">{p.period}</span>
+                  </p>
+                  <p className="mt-3 flex-1 text-sm leading-relaxed text-slate-400">{p.planFor}</p>
+                  <Link
+                    to="/register"
+                    className={
+                      p.featured
+                        ? "mt-6 inline-flex h-10 w-full items-center justify-center rounded-lg bg-blue-600 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                        : "mt-6 inline-flex h-10 w-full items-center justify-center rounded-lg border border-slate-600 bg-slate-800/80 text-sm font-medium text-slate-100 transition hover:border-slate-500 hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
+                    }
+                  >
+                    {p.cta}
+                  </Link>
+                </div>
+              ))}
+            </div>
+            <div className="mt-10 text-center">
+              <Link
+                to="/pricing"
+                className="inline-flex h-10 items-center justify-center rounded-lg px-4 text-sm font-semibold text-blue-600 transition hover:text-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              >
+                Compare all plans
+                <ArrowRightOutlined className="ml-1.5 text-xs" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-slate-200/50 bg-white">
+          <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className={SECTION_EYEBROW}>Who it&apos;s for</p>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Built for everyone in the ecosystem</h2>
+              <p className="mt-4 text-base text-slate-600">
+                LedgeX is for the people in front of the work — not internal operator tooling, which we keep out of the
+                spotlight.
+              </p>
+            </div>
+            <div className="mt-12 grid gap-4 lg:grid-cols-3">
+              {WHOS_FOR.map((r) => (
+                <article
+                  key={r.title}
+                  className="flex h-full flex-col rounded-2xl border border-slate-200/80 bg-white p-7 shadow-sm shadow-slate-900/[0.04] ring-1 ring-slate-900/[0.02] transition duration-200 hover:shadow-md hover:shadow-slate-900/[0.07]"
+                >
+                  <div
+                    className={`inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${r.accent} ring-1`}
+                  >
+                    <r.icon className="text-xl" aria-hidden />
+                  </div>
+                  <h3 className="mt-5 text-lg font-semibold text-slate-900">{r.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-600">{r.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-slate-200/50 bg-slate-50">
+          <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+            <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Trust, without theatre</h2>
+            <p className="mt-3 max-w-2xl text-base text-slate-600">
+              Financial software should feel responsible. LedgeX is built to support disciplined processes — not
+              one-click promises.
             </p>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600">
-              Core compliance always included. Add-ons optional.
+            <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {TRUST.map((t) => (
+                <li
+                  key={t.label}
+                  className="flex items-center gap-2 rounded-xl border border-slate-200/60 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm shadow-slate-900/[0.03]"
+                >
+                  <t.icon className="text-base text-emerald-600" aria-hidden />
+                  {t.label}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-8 text-sm text-slate-500">Cancel anytime · No setup fees · Core compliance always included</p>
+          </div>
+        </section>
+
+        <section className="border-t border-slate-200/50 bg-white">
+          <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                Start automating your accounting today
+              </h2>
+              <p className="mt-4 text-base text-slate-600">
+                Create an account, verify your email, and move your first workflow in minutes.
+              </p>
+              <Link
+                to="/register"
+                className={`mt-8 inline-flex h-12 items-center justify-center rounded-xl px-8 text-sm font-semibold ${PRIMARY_BTN}`}
+              >
+                Get started free
+                <ArrowRightOutlined className="ml-2 text-xs opacity-90" />
+              </Link>
+            </div>
+            <p className="mt-10 text-center text-xs font-medium uppercase tracking-wider text-slate-400">
+              Trusted by teams who take compliance seriously
             </p>
+            <ul
+              className="mx-auto mt-6 flex max-w-3xl flex-wrap items-center justify-center gap-8 sm:gap-10"
+              aria-label="Industries and practices"
+            >
+              {["SMEs", "Accountancy practices", "Bookkeeping firms", "Partner networks"].map((label) => (
+                <li
+                  key={label}
+                  className="h-8 min-w-[5.5rem] rounded-lg border border-slate-200/80 bg-slate-50/80 px-4 py-1.5 text-center text-xs font-semibold text-slate-500 shadow-sm"
+                >
+                  {label}
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
       </main>
+
     </div>
   );
 }

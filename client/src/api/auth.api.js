@@ -4,6 +4,7 @@ export const AUTH_TOKEN_STORAGE_KEY = "token";
 
 export const axiosInstance = axios.create({
   baseURL: "http://localhost:5000/api",
+  withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -42,5 +43,6 @@ export const verifyEmail = (data) => {
 };
 
 export const login = (data) => axiosInstance.post("/auth/login", data);
+export const logout = () => axiosInstance.post("/auth/logout");
 
 export const getMe = () => axiosInstance.get("/auth/me");

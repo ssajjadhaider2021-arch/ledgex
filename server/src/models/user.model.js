@@ -15,6 +15,7 @@ const User = sequelize.define("User", {
   onboardingDocuments: { type: DataTypes.JSON, allowNull: true },
   onboardingRiskAssessment: { type: DataTypes.JSON, allowNull: true },
   amlStatus: { type: DataTypes.STRING, defaultValue: "pending" },
+  is_accountant_approved: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
 });
 
 module.exports = User;

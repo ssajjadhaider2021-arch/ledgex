@@ -1,6 +1,9 @@
 import React, { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { postAuthPath } from "../../utils/postAuthPath";
+import MarketingHeader from "../../components/MarketingHeader";
+import { PRIMARY_BTN } from "../../constants/marketingUi";
 
 const VERIFY_EMAIL_STORAGE_KEY = "ledgeX_pending_verify_email";
 
@@ -49,11 +52,7 @@ export default function VerifyPage() {
       });
       sessionStorage.removeItem(VERIFY_EMAIL_STORAGE_KEY);
       const u = data.user;
-      if (!u?.onboardingCompleted) {
-        navigate("/onboarding", { replace: true });
-      } else {
-        navigate("/dashboard", { replace: true });
-      }
+      navigate(postAuthPath(u), { replace: true });
     } catch (err) {
       setError(err.message || "Verification failed. Check the code and try again.");
     } finally {
@@ -62,19 +61,12 @@ export default function VerifyPage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-40"
-        aria-hidden
-        style={{
-          backgroundImage:
-            "radial-gradient(ellipse 75% 50% at 50% -15%, rgba(16, 185, 129, 0.14), transparent), radial-gradient(ellipse 55% 45% at 100% 0%, rgba(59, 130, 246, 0.1), transparent)",
-        }}
-      />
+    <div className="w-full bg-slate-50">
+      <MarketingHeader />
 
-      <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-4 py-14 sm:px-6 lg:flex-row lg:items-center lg:gap-12 lg:px-10 lg:py-16">
+      <div className="relative mx-auto flex max-w-6xl flex-col justify-center px-4 py-14 sm:px-6 lg:flex-row lg:items-center lg:gap-12 lg:px-10 lg:py-20">
         <header className="mb-10 max-w-xl lg:mb-0 lg:flex-1 lg:pr-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">Almost there</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-blue-600">Almost there</p>
           <h1 className="mt-4 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
             Verify your email
           </h1>
@@ -83,13 +75,13 @@ export default function VerifyPage() {
           </p>
           <ul className="mt-10 hidden space-y-3 text-sm text-slate-600 sm:block">
             <li className="flex items-center gap-2">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-800">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-800">
                 1
               </span>
               Check your inbox and spam folder for the email from Ledgex.
             </li>
             <li className="flex items-center gap-2">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-800">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-800">
                 2
               </span>
               Type the six-digit code below — no spaces needed.
@@ -98,7 +90,7 @@ export default function VerifyPage() {
         </header>
 
         <div className="w-full lg:max-w-md lg:flex-1">
-          <div className="rounded-3xl border border-slate-200/90 bg-white/95 p-8 shadow-2xl shadow-slate-900/[0.06] ring-1 ring-slate-900/[0.04] backdrop-blur-sm sm:p-10">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-8 shadow-sm shadow-slate-900/5 ring-1 ring-slate-900/[0.04] sm:p-10">
             <h2 className="sr-only">Verification code</h2>
 
             {resolvedEmail ? (
@@ -150,7 +142,7 @@ export default function VerifyPage() {
                   onChange={(e) => setCode(e.target.value.replace(/[^\d]/g, ""))}
                   placeholder="000000"
                   disabled={submitting || !resolvedEmail}
-                  className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-4 text-center font-mono text-2xl tracking-[0.35em] text-slate-900 shadow-inner shadow-slate-900/5 outline-none transition placeholder:text-slate-300 placeholder:tracking-normal focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/15 disabled:opacity-60 sm:text-3xl"
+                  className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-4 text-center font-mono text-2xl tracking-[0.35em] text-slate-900 shadow-inner shadow-slate-900/5 outline-none transition placeholder:text-slate-300 placeholder:tracking-normal focus:border-blue-400 focus:ring-4 focus:ring-blue-500/15 disabled:opacity-60 sm:text-3xl"
                 />
                 <p className="mt-2 text-xs text-slate-500">Usually 6 digits from the email we sent.</p>
               </div>
@@ -158,7 +150,7 @@ export default function VerifyPage() {
               <button
                 type="submit"
                 disabled={submitting || !resolvedEmail}
-                className="w-full rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-600/25 transition hover:from-emerald-500 hover:to-teal-500 disabled:cursor-not-allowed disabled:opacity-60"
+                className={`w-full rounded-xl px-4 py-3.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${PRIMARY_BTN}`}
               >
                 {submitting ? "Verifying…" : "Verify & continue"}
               </button>

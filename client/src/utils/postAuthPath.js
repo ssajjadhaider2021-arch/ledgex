@@ -7,5 +7,11 @@ export function postAuthPath(user) {
     return `/onboarding/step${step}`;
   }
 
+  if (user.role === "accountant") {
+    const approved = user.is_accountant_approved === true || user.isAccountantApproved === true;
+    if (approved) return "/dashboard";
+    return "/onboarding/accountant/step1";
+  }
+
   return "/dashboard";
 }

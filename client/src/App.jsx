@@ -2,6 +2,8 @@ import React from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import RequireAdmin from "./components/RequireAdmin";
+import RequireAccountantVerificationApproved from "./components/RequireAccountantVerificationApproved";
 import RequireOnboardingComplete from "./components/RequireOnboardingComplete";
 import GlobalFooter from "./components/GlobalFooter";
 import LandingPage from "./pages/LandingPage";
@@ -26,6 +28,14 @@ import PricingPage from "./pages/marketing/PricingPage";
 import PartnerPage from "./pages/marketing/PartnerPage";
 import ToolPage from "./pages/marketing/ToolPage";
 import GuidesPage from "./pages/marketing/GuidesPage";
+import LegalDocumentPage from "./pages/marketing/LegalDocumentPage";
+import AccountantOnboardingPage from "./pages/accountant/AccountantOnboardingPage";
+import AccountantPendingPage from "./pages/accountant/AccountantPendingPage";
+import AccountantMoaStep1Page from "./pages/accountant/AccountantMoaStep1Page";
+import AccountantVerificationDocumentsPage from "./pages/accountant/AccountantVerificationDocumentsPage";
+import AccountantVerificationStatusPage from "./pages/accountant/AccountantVerificationStatusPage";
+import AdminAccountantsPage from "./pages/admin/AdminAccountantsPage";
+import OnboardingStatusPage from "./pages/onboarding/OnboardingStatusPage";
 
 function App() {
   return (
@@ -40,9 +50,68 @@ function App() {
               <Route path="/partner" element={<PartnerPage />} />
               <Route path="/tool" element={<ToolPage />} />
               <Route path="/guides" element={<GuidesPage />} />
+              <Route path="/legal/:slug" element={<LegalDocumentPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/verify" element={<VerifyPage />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route
+                path="/admin/accountants"
+                element={
+                  <ProtectedRoute>
+                    <RequireAdmin>
+                      <AdminAccountantsPage />
+                    </RequireAdmin>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/accountant/onboarding"
+                element={
+                  <ProtectedRoute>
+                    <AccountantOnboardingPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/accountant/pending"
+                element={
+                  <ProtectedRoute>
+                    <AccountantPendingPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/onboarding/accountant/step1"
+                element={
+                  <ProtectedRoute>
+                    <AccountantMoaStep1Page />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/accountant/verification-documents"
+                element={
+                  <ProtectedRoute>
+                    <AccountantVerificationDocumentsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/accountant/verification-status"
+                element={
+                  <ProtectedRoute>
+                    <AccountantVerificationStatusPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/onboarding-status"
+                element={
+                  <ProtectedRoute>
+                    <OnboardingStatusPage />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/onboarding"
                 element={
@@ -88,7 +157,9 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <RequireOnboardingComplete>
-                      <DashboardLayout />
+                      <RequireAccountantVerificationApproved>
+                        <DashboardLayout />
+                      </RequireAccountantVerificationApproved>
                     </RequireOnboardingComplete>
                   </ProtectedRoute>
                 }

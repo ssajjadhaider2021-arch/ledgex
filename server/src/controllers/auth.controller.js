@@ -2,7 +2,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user.model");
 const { sendVerificationEmail } = require("../services/email.service");
-const { generateToken } = require("../utils/jwt");
+const { generateToken, getCookieName, getCookieOptions } = require("../utils/jwt");
+
+const ALLOWED_ROLES = new Set(["client", "accountant", "admin"]);
 
 function userPayload(user) {
   return {
@@ -13,6 +15,7 @@ function userPayload(user) {
     isVerified: user.isVerified,
     onboardingCompleted: user.onboardingCompleted,
     onboardingStep: user.onboardingStep,
+    is_accountant_approved: user.is_accountant_approved ?? false,
   };
 }
 
@@ -22,6 +25,10 @@ exports.signup = async (req, res) => {
 
     if (!email || !password || !role) {
       return res.status(400).json({ message: "Missing fields" });
+    }
+
+    if (!ALLOWED_ROLES.has(String(role).toLowerCase())) {
+      return res.status(400).json({ message: "Invalid role. Allowed: client, accountant, admin" });
     }
 
     const existing = await User.findOne({ where: { email } });
@@ -35,7 +42,7 @@ exports.signup = async (req, res) => {
     await User.create({
       email,
       password: hashed,
-      role,
+      role: String(role).toLowerCase(),
       verificationCode: code,
     });
 
@@ -71,11 +78,9 @@ exports.verifyEmail = async (req, res) => {
     user.verificationCode = null;
     await user.save();
 
-    const token = jwt.sign(
-      { id: user.id, role: user.role },
-      process.env.JWT_SECRET || "dev_secret",
-      { expiresIn: "7d" }
-    );
+    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET || "dev_secret", { expiresIn: "7d" });
+
+    res.cookie(getCookieName(), token, getCookieOptions());
 
     await user.reload();
 
@@ -116,6 +121,7 @@ exports.login = async (req, res) => {
     }
 
     const token = generateToken(user);
+    res.cookie(getCookieName(), token, getCookieOptions());
 
     return res.json({
       token,
@@ -125,6 +131,17 @@ exports.login = async (req, res) => {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
+};
+
+exports.logout = async (_req, res) => {
+  const cookieOptions = getCookieOptions();
+  res.clearCookie(getCookieName(), {
+    httpOnly: cookieOptions.httpOnly,
+    sameSite: cookieOptions.sameSite,
+    secure: cookieOptions.secure,
+    path: cookieOptions.path,
+  });
+  return res.json({ success: true, message: "Logged out successfully" });
 };
 
 exports.me = async (req, res) => {

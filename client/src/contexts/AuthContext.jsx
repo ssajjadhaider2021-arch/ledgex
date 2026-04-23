@@ -6,8 +6,13 @@ import {
   register as registerApi,
   verifyEmail as verifyEmailApi,
   login as loginApi,
+  logout as logoutApi,
   getMe as getMeApi,
 } from "../api/auth.api";
+import {
+  ACCOUNTANT_VERIFICATION_STATUS_KEY,
+  writeStoredUser,
+} from "../utils/authStorage";
 
 function apiErrorMessage(error) {
   const d = error?.response?.data;
@@ -34,12 +39,15 @@ export function AuthProvider({ children }) {
     if (!stored) {
       setUser(null);
       setIsAuthenticated(false);
+      writeStoredUser(null);
+      localStorage.removeItem(ACCOUNTANT_VERIFICATION_STATUS_KEY);
       return;
     }
     try {
       const { data } = await getMeApi();
       setUser(data);
       setIsAuthenticated(true);
+      writeStoredUser(data);
     } catch {
       localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
       delete axios.defaults.headers.common["Authorization"];
@@ -47,6 +55,8 @@ export function AuthProvider({ children }) {
       setToken(null);
       setUser(null);
       setIsAuthenticated(false);
+      writeStoredUser(null);
+      localStorage.removeItem(ACCOUNTANT_VERIFICATION_STATUS_KEY);
     }
   }, []);
 
@@ -87,6 +97,7 @@ export function AuthProvider({ children }) {
       setToken(data.token);
       setUser(data.user);
       setIsAuthenticated(true);
+      writeStoredUser(data.user);
 
       return data;
     } catch (error) {
@@ -106,19 +117,27 @@ export function AuthProvider({ children }) {
       setToken(data.token);
       setUser(data.user);
       setIsAuthenticated(true);
+      writeStoredUser(data.user);
       return data;
     } catch (error) {
       throw new Error(apiErrorMessage(error));
     }
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    try {
+      await logoutApi();
+    } catch {
+      // Best-effort server logout; always clear local state.
+    }
     localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
     delete axios.defaults.headers.common["Authorization"];
     setAuthTokenHeader(null);
     setToken(null);
     setUser(null);
     setIsAuthenticated(false);
+    writeStoredUser(null);
+    localStorage.removeItem(ACCOUNTANT_VERIFICATION_STATUS_KEY);
   }, []);
 
   const value = useMemo(
