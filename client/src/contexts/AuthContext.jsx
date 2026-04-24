@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import axios from "axios";
 import {
   AUTH_TOKEN_STORAGE_KEY,
+  getApiErrorMessage,
   setAuthTokenHeader,
   register as registerApi,
   verifyEmail as verifyEmailApi,
@@ -13,11 +14,6 @@ import {
   ACCOUNTANT_VERIFICATION_STATUS_KEY,
   writeStoredUser,
 } from "../utils/authStorage";
-
-function apiErrorMessage(error) {
-  const d = error?.response?.data;
-  return d?.message || d?.error || "Request failed";
-}
 
 const AuthContext = createContext(null);
 
@@ -76,7 +72,7 @@ export function AuthProvider({ children }) {
       const { data } = await registerApi(payload);
       return data;
     } catch (error) {
-      throw new Error(apiErrorMessage(error));
+      throw new Error(getApiErrorMessage(error));
     }
   }, []);
 
@@ -101,28 +97,38 @@ export function AuthProvider({ children }) {
 
       return data;
     } catch (error) {
-      throw new Error(apiErrorMessage(error));
+      throw new Error(getApiErrorMessage(error));
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const login = useCallback(async (payload) => {
-    try {
-      const { data } = await loginApi(payload);
-      localStorage.setItem("token", data.token);
-      localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, data.token);
-      axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
-      setAuthTokenHeader(data.token);
-      setToken(data.token);
-      setUser(data.user);
-      setIsAuthenticated(true);
-      writeStoredUser(data.user);
-      return data;
-    } catch (error) {
-      throw new Error(apiErrorMessage(error));
+  const hydrateFromLoginData = useCallback((data) => {
+    if (!data?.token || !data?.user) {
+      throw new Error("Invalid login response");
     }
+    localStorage.setItem("token", data.token);
+    localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, data.token);
+    axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
+    setAuthTokenHeader(data.token);
+    setToken(data.token);
+    setUser(data.user);
+    setIsAuthenticated(true);
+    writeStoredUser(data.user);
   }, []);
+
+  const login = useCallback(
+    async (payload) => {
+      try {
+        const { data } = await loginApi(payload);
+        hydrateFromLoginData(data);
+        return data;
+      } catch (error) {
+        throw new Error(getApiErrorMessage(error));
+      }
+    },
+    [hydrateFromLoginData]
+  );
 
   const logout = useCallback(async () => {
     try {
@@ -149,10 +155,11 @@ export function AuthProvider({ children }) {
       register,
       verifyEmail,
       login,
+      hydrateFromLoginData,
       logout,
       loadUser,
     }),
-    [user, token, isAuthenticated, loading, register, verifyEmail, login, logout, loadUser]
+    [user, token, isAuthenticated, loading, register, verifyEmail, login, hydrateFromLoginData, logout, loadUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

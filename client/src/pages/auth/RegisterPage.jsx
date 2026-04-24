@@ -1,21 +1,25 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
+import { getApiErrorMessage, register as registerRequest } from "../../api/auth.api";
 import MarketingHeader from "../../components/MarketingHeader";
 import { PRIMARY_BTN } from "../../constants/marketingUi";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const formRef = useRef(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("client");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
+  const handleRegister = async () => {
     setError("");
+    const form = formRef.current;
+    if (form && !form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
     const cleaned = email.trim();
     if (!cleaned || !password || !role) {
       setError("Email, password, and role are required.");
@@ -24,11 +28,11 @@ export default function RegisterPage() {
 
     setSubmitting(true);
     try {
-      await register({ email: cleaned, password, role });
+      await registerRequest({ email: cleaned, password, role });
       sessionStorage.setItem("ledgeX_pending_verify_email", cleaned);
       navigate("/verify", { state: { email: cleaned } });
     } catch (err) {
-      setError(err.message || "Something went wrong.");
+      setError(getApiErrorMessage(err) || "Something went wrong.");
     } finally {
       setSubmitting(false);
     }
@@ -76,7 +80,15 @@ export default function RegisterPage() {
               </div>
             ) : null}
 
-            <form onSubmit={onSubmit} className="space-y-5">
+            <form
+              ref={formRef}
+              id="register-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void handleRegister();
+              }}
+              className="space-y-5"
+            >
               <div>
                 <label htmlFor="register-email" className="block text-sm font-semibold text-slate-800">
                   Email
@@ -90,6 +102,7 @@ export default function RegisterPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@company.com"
                   disabled={submitting}
+                  required
                   className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-inner shadow-slate-900/5 outline-none ring-slate-900/5 transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/15 disabled:opacity-60"
                 />
               </div>
@@ -107,6 +120,7 @@ export default function RegisterPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Create a strong password"
                   disabled={submitting}
+                  required
                   className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-inner shadow-slate-900/5 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/15 disabled:opacity-60"
                 />
               </div>
@@ -136,8 +150,9 @@ export default function RegisterPage() {
               </div>
 
               <button
-                type="submit"
+                type="button"
                 disabled={submitting}
+                onClick={() => void handleRegister()}
                 className={`mt-2 w-full rounded-xl px-4 py-3.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${PRIMARY_BTN}`}
               >
                 {submitting ? "Creating account…" : "Sign up"}

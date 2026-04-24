@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { getApiErrorMessage, login as loginRequest } from "../../api/auth.api";
 import { useAuth } from "../../contexts/AuthContext";
 import { postAuthPath } from "../../utils/postAuthPath";
 import MarketingHeader from "../../components/MarketingHeader";
@@ -7,21 +8,27 @@ import { PRIMARY_BTN } from "../../constants/marketingUi";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const formRef = useRef(null);
+  const { hydrateFromLoginData } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
+  const handleLogin = async () => {
     setError("");
+    const form = formRef.current;
+    if (form && !form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
     setSubmitting(true);
     try {
-      const data = await login({ email: email.trim(), password });
+      const { data } = await loginRequest({ email: email.trim(), password });
+      hydrateFromLoginData(data);
       navigate(postAuthPath(data.user), { replace: true });
     } catch (err) {
-      setError(err.message || "Invalid email or password.");
+      setError(getApiErrorMessage(err) || "Invalid email or password.");
     } finally {
       setSubmitting(false);
     }
@@ -59,7 +66,15 @@ export default function LoginPage() {
               </div>
             ) : null}
 
-            <form onSubmit={onSubmit} className="space-y-5">
+            <form
+              ref={formRef}
+              id="login-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void handleLogin();
+              }}
+              className="space-y-5"
+            >
               <div>
                 <label htmlFor="login-email" className="block text-sm font-semibold text-slate-800">
                   Email
@@ -97,8 +112,9 @@ export default function LoginPage() {
               </div>
 
               <button
-                type="submit"
+                type="button"
                 disabled={submitting}
+                onClick={() => void handleLogin()}
                 className={`mt-2 w-full rounded-xl px-4 py-3.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${PRIMARY_BTN}`}
               >
                 {submitting ? "Signing in…" : "Log in"}
@@ -117,3 +133,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+

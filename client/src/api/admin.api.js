@@ -1,19 +1,19 @@
-import { axiosInstance } from "./auth.api";
+import { apiUrl, axiosInstance } from "./auth.api";
 
 export function listAccountants() {
-  return axiosInstance.get("/admin/accountants");
+  return axiosInstance.get(apiUrl("admin/accountants"));
 }
 
 export function getAccountantById(profileId) {
-  return axiosInstance.get(`/admin/accountants/${profileId}`);
+  return axiosInstance.get(apiUrl(`admin/accountants/${profileId}`));
 }
 
 export function approveAccountant(profileId) {
-  return axiosInstance.post(`/admin/accountants/${profileId}/approve`);
+  return axiosInstance.post(apiUrl(`admin/accountants/${profileId}/approve`));
 }
 
 export function rejectAccountant(profileId, reason) {
-  return axiosInstance.post(`/admin/accountants/${profileId}/reject`, {
+  return axiosInstance.post(apiUrl(`admin/accountants/${profileId}/reject`), {
     reason: reason || undefined,
   });
 }
